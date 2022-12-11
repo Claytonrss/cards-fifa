@@ -1,35 +1,22 @@
-import Image from "next/image";
-import React, { useEffect, useRef } from "react";
-import { Container } from "./styles";
-
-type Player = {
-  photo: string;
-  overall: number;
-  position: string;
-  flag: string;
-  name: string;
-};
+import Image from 'next/image'
+import { useModal } from '../../context/ModalContext'
+import { usePlayer } from '../../context/PlayerContext'
+import { Player } from '../../types/Player'
+import { flagExternalToLocal } from '../../utils/transform'
+import { Container } from './styles'
 
 const Card = (player: Player) => {
-  let card = useRef<HTMLDivElement>(null);
+  const { setShowModal } = useModal()
+  const { setPlayerSelected } = usePlayer()
+  const { country, flagURL } = flagExternalToLocal(player.flag)
 
-  useEffect(() => {
-    card.current?.addEventListener("mousemove", function (e) {
-      const element = e.currentTarget as HTMLElement;
-      let xAxis = (window.innerWidth / 2 - e.pageX) / 40;
-      let yAxis = (window.innerHeight / 2 - e.pageY) / 40;
-      element.style.scale = `95%`;
-      element.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-    });
-    card.current?.addEventListener("mouseleave", function (e) {
-      const element = e.currentTarget as HTMLElement;
-      element.style.scale = `100%`;
-      element.style.transform = `rotateY(0deg) rotateX(0deg)`;
-    });
-  }, []);
+  const handleClick = () => {
+    setPlayerSelected(player)
+    setShowModal(true)
+  }
 
   return (
-    <Container className="card" ref={card}>
+    <Container className="card" onClick={handleClick}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 267.3 427.3">
         <clipPath id="svgPath">
           <path
@@ -45,15 +32,14 @@ const Card = (player: Player) => {
               <div className="card-overall">{player.overall}</div>
               <div className="card-position">{player.position}</div>
               <div className="card-flag">
-                <img src={player.flag} alt="país" />
-                {/* <Image
-                  src={player.flag}
-                  alt="país"
-                  className="photo"
-                  layout="fixed"
+                <Image
+                  src={flagURL}
+                  alt={country}
                   width={32}
                   height={24}
-                /> */}
+                  loading={'lazy'}
+                  placeholder={'empty'}
+                />
               </div>
             </div>
           </div>
@@ -61,17 +47,49 @@ const Card = (player: Player) => {
             src={player.photo}
             alt={player.name}
             className="photo"
-            layout="fixed"
-            width={180}
-            height={180}
+            width={170}
+            height={170}
+            loading={'lazy'}
+            placeholder={'empty'}
           />
         </div>
         <div id="card-bottom">
           <h3>{player.name}</h3>
+
+          <div className="details">
+            <ul>
+              <li>
+                <span>{player.PAC}</span>
+                <span>PAC</span>
+              </li>
+              <li>
+                <span>{player.SHO}</span>
+                <span>SHO</span>
+              </li>
+              <li>
+                <span>{player.PAS}</span>
+                <span>PAS</span>
+              </li>
+            </ul>
+            <ul>
+              <li>
+                <span>{player.DRI}</span>
+                <span>DRI</span>
+              </li>
+              <li>
+                <span>{player.DEF}</span>
+                <span>DEF</span>
+              </li>
+              <li>
+                <span>{player.PHY}</span>
+                <span>PHY</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </Container>
-  );
-};
+  )
+}
 
-export default Card;
+export default Card
